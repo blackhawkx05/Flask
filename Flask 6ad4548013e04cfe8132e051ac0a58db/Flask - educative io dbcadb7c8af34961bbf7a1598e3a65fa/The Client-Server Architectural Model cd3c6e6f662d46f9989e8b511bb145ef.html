@@ -1,0 +1,638 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>The Client-Server Architectural Model</title><style>
+/* webkit printing magic: print all background colors */
+html {
+	-webkit-print-color-adjust: exact;
+}
+* {
+	box-sizing: border-box;
+	-webkit-print-color-adjust: exact;
+}
+
+html,
+body {
+	margin: 0;
+	padding: 0;
+}
+@media only screen {
+	body {
+		margin: 2em auto;
+		max-width: 900px;
+		color: rgb(55, 53, 47);
+	}
+}
+
+body {
+	line-height: 1.5;
+	white-space: pre-wrap;
+}
+
+a,
+a.visited {
+	color: inherit;
+	text-decoration: underline;
+}
+
+.pdf-relative-link-path {
+	font-size: 80%;
+	color: #444;
+}
+
+h1,
+h2,
+h3 {
+	letter-spacing: -0.01em;
+	line-height: 1.2;
+	font-weight: 600;
+	margin-bottom: 0;
+}
+
+.page-title {
+	font-size: 2.5rem;
+	font-weight: 700;
+	margin-top: 0;
+	margin-bottom: 0.75em;
+}
+
+h1 {
+	font-size: 1.875rem;
+	margin-top: 1.875rem;
+}
+
+h2 {
+	font-size: 1.5rem;
+	margin-top: 1.5rem;
+}
+
+h3 {
+	font-size: 1.25rem;
+	margin-top: 1.25rem;
+}
+
+.source {
+	border: 1px solid #ddd;
+	border-radius: 3px;
+	padding: 1.5em;
+	word-break: break-all;
+}
+
+.callout {
+	border-radius: 3px;
+	padding: 1rem;
+}
+
+figure {
+	margin: 1.25em 0;
+	page-break-inside: avoid;
+}
+
+figcaption {
+	opacity: 0.5;
+	font-size: 85%;
+	margin-top: 0.5em;
+}
+
+mark {
+	background-color: transparent;
+}
+
+.indented {
+	padding-left: 1.5em;
+}
+
+hr {
+	background: transparent;
+	display: block;
+	width: 100%;
+	height: 1px;
+	visibility: visible;
+	border: none;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+img {
+	max-width: 100%;
+}
+
+@media only print {
+	img {
+		max-height: 100vh;
+		object-fit: contain;
+	}
+}
+
+@page {
+	margin: 1in;
+}
+
+.collection-content {
+	font-size: 0.875rem;
+}
+
+.column-list {
+	display: flex;
+	justify-content: space-between;
+}
+
+.column {
+	padding: 0 1em;
+}
+
+.column:first-child {
+	padding-left: 0;
+}
+
+.column:last-child {
+	padding-right: 0;
+}
+
+.table_of_contents-item {
+	display: block;
+	font-size: 0.875rem;
+	line-height: 1.3;
+	padding: 0.125rem;
+}
+
+.table_of_contents-indent-1 {
+	margin-left: 1.5rem;
+}
+
+.table_of_contents-indent-2 {
+	margin-left: 3rem;
+}
+
+.table_of_contents-indent-3 {
+	margin-left: 4.5rem;
+}
+
+.table_of_contents-link {
+	text-decoration: none;
+	opacity: 0.7;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.18);
+}
+
+table,
+th,
+td {
+	border: 1px solid rgba(55, 53, 47, 0.09);
+	border-collapse: collapse;
+}
+
+table {
+	border-left: none;
+	border-right: none;
+}
+
+th,
+td {
+	font-weight: normal;
+	padding: 0.25em 0.5em;
+	line-height: 1.5;
+	min-height: 1.5em;
+	text-align: left;
+}
+
+th {
+	color: rgba(55, 53, 47, 0.6);
+}
+
+ol,
+ul {
+	margin: 0;
+	margin-block-start: 0.6em;
+	margin-block-end: 0.6em;
+}
+
+li > ol:first-child,
+li > ul:first-child {
+	margin-block-start: 0.6em;
+}
+
+ul > li {
+	list-style: disc;
+}
+
+ul.to-do-list {
+	text-indent: -1.7em;
+}
+
+ul.to-do-list > li {
+	list-style: none;
+}
+
+.to-do-children-checked {
+	text-decoration: line-through;
+	opacity: 0.375;
+}
+
+ul.toggle > li {
+	list-style: none;
+}
+
+ul {
+	padding-inline-start: 1.7em;
+}
+
+ul > li {
+	padding-left: 0.1em;
+}
+
+ol {
+	padding-inline-start: 1.6em;
+}
+
+ol > li {
+	padding-left: 0.2em;
+}
+
+.mono ol {
+	padding-inline-start: 2em;
+}
+
+.mono ol > li {
+	text-indent: -0.4em;
+}
+
+.toggle {
+	padding-inline-start: 0em;
+	list-style-type: none;
+}
+
+/* Indent toggle children */
+.toggle > li > details {
+	padding-left: 1.7em;
+}
+
+.toggle > li > details > summary {
+	margin-left: -1.1em;
+}
+
+.selected-value {
+	display: inline-block;
+	padding: 0 0.5em;
+	background: rgba(206, 205, 202, 0.5);
+	border-radius: 3px;
+	margin-right: 0.5em;
+	margin-top: 0.3em;
+	margin-bottom: 0.3em;
+	white-space: nowrap;
+}
+
+.collection-title {
+	display: inline-block;
+	margin-right: 1em;
+}
+
+time {
+	opacity: 0.5;
+}
+
+.icon {
+	display: inline-block;
+	max-width: 1.2em;
+	max-height: 1.2em;
+	text-decoration: none;
+	vertical-align: text-bottom;
+	margin-right: 0.5em;
+}
+
+img.icon {
+	border-radius: 3px;
+}
+
+.user-icon {
+	width: 1.5em;
+	height: 1.5em;
+	border-radius: 100%;
+	margin-right: 0.5rem;
+}
+
+.user-icon-inner {
+	font-size: 0.8em;
+}
+
+.text-icon {
+	border: 1px solid #000;
+	text-align: center;
+}
+
+.page-cover-image {
+	display: block;
+	object-fit: cover;
+	width: 100%;
+	height: 30vh;
+}
+
+.page-header-icon {
+	font-size: 3rem;
+	margin-bottom: 1rem;
+}
+
+.page-header-icon-with-cover {
+	margin-top: -0.72em;
+	margin-left: 0.07em;
+}
+
+.page-header-icon img {
+	border-radius: 3px;
+}
+
+.link-to-page {
+	margin: 1em 0;
+	padding: 0;
+	border: none;
+	font-weight: 500;
+}
+
+p > .user {
+	opacity: 0.5;
+}
+
+td > .user,
+td > time {
+	white-space: nowrap;
+}
+
+input[type="checkbox"] {
+	transform: scale(1.5);
+	margin-right: 0.6em;
+	vertical-align: middle;
+}
+
+p {
+	margin-top: 0.5em;
+	margin-bottom: 0.5em;
+}
+
+.image {
+	border: none;
+	margin: 1.5em 0;
+	padding: 0;
+	border-radius: 0;
+	text-align: center;
+}
+
+.code,
+code {
+	background: rgba(135, 131, 120, 0.15);
+	border-radius: 3px;
+	padding: 0.2em 0.4em;
+	border-radius: 3px;
+	font-size: 85%;
+	tab-size: 2;
+}
+
+code {
+	color: #eb5757;
+}
+
+.code {
+	padding: 1.5em 1em;
+}
+
+.code-wrap {
+	white-space: pre-wrap;
+	word-break: break-all;
+}
+
+.code > code {
+	background: none;
+	padding: 0;
+	font-size: 100%;
+	color: inherit;
+}
+
+blockquote {
+	font-size: 1.25em;
+	margin: 1em 0;
+	padding-left: 1em;
+	border-left: 3px solid rgb(55, 53, 47);
+}
+
+.bookmark {
+	text-decoration: none;
+	max-height: 8em;
+	padding: 0;
+	display: flex;
+	width: 100%;
+	align-items: stretch;
+}
+
+.bookmark-title {
+	font-size: 0.85em;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	height: 1.75em;
+	white-space: nowrap;
+}
+
+.bookmark-text {
+	display: flex;
+	flex-direction: column;
+}
+
+.bookmark-info {
+	flex: 4 1 180px;
+	padding: 12px 14px 14px;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+}
+
+.bookmark-image {
+	width: 33%;
+	flex: 1 1 180px;
+	display: block;
+	position: relative;
+	object-fit: cover;
+	border-radius: 1px;
+}
+
+.bookmark-description {
+	color: rgba(55, 53, 47, 0.6);
+	font-size: 0.75em;
+	overflow: hidden;
+	max-height: 4.5em;
+	word-break: break-word;
+}
+
+.bookmark-href {
+	font-size: 0.75em;
+	margin-top: 0.25em;
+}
+
+.sans { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol"; }
+.code { font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace; }
+.serif { font-family: Lyon-Text, Georgia, YuMincho, "Yu Mincho", "Hiragino Mincho ProN", "Hiragino Mincho Pro", "Songti TC", "Songti SC", "SimSun", "Nanum Myeongjo", NanumMyeongjo, Batang, serif; }
+.mono { font-family: iawriter-mono, Nitti, Menlo, Courier, monospace; }
+.pdf .sans { font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK SC', 'Noto Sans CJK KR'; }
+
+.pdf .code { font-family: Source Code Pro, "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC', 'Noto Sans Mono CJK KR'; }
+
+.pdf .serif { font-family: PT Serif, Lyon-Text, Georgia, YuMincho, "Yu Mincho", "Hiragino Mincho ProN", "Hiragino Mincho Pro", "Songti TC", "Songti SC", "SimSun", "Nanum Myeongjo", NanumMyeongjo, Batang, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK SC', 'Noto Sans CJK KR'; }
+
+.pdf .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC', 'Noto Sans Mono CJK KR'; }
+
+.highlight-default {
+}
+.highlight-gray {
+	color: rgb(155,154,151);
+}
+.highlight-brown {
+	color: rgb(100,71,58);
+}
+.highlight-orange {
+	color: rgb(217,115,13);
+}
+.highlight-yellow {
+	color: rgb(223,171,1);
+}
+.highlight-teal {
+	color: rgb(15,123,108);
+}
+.highlight-blue {
+	color: rgb(11,110,153);
+}
+.highlight-purple {
+	color: rgb(105,64,165);
+}
+.highlight-pink {
+	color: rgb(173,26,114);
+}
+.highlight-red {
+	color: rgb(224,62,62);
+}
+.highlight-gray_background {
+	background: rgb(235,236,237);
+}
+.highlight-brown_background {
+	background: rgb(233,229,227);
+}
+.highlight-orange_background {
+	background: rgb(250,235,221);
+}
+.highlight-yellow_background {
+	background: rgb(251,243,219);
+}
+.highlight-teal_background {
+	background: rgb(221,237,234);
+}
+.highlight-blue_background {
+	background: rgb(221,235,241);
+}
+.highlight-purple_background {
+	background: rgb(234,228,242);
+}
+.highlight-pink_background {
+	background: rgb(244,223,235);
+}
+.highlight-red_background {
+	background: rgb(251,228,228);
+}
+.block-color-default {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray {
+	color: rgba(55, 53, 47, 0.6);
+	fill: rgba(55, 53, 47, 0.6);
+}
+.block-color-brown {
+	color: rgb(100,71,58);
+	fill: rgb(100,71,58);
+}
+.block-color-orange {
+	color: rgb(217,115,13);
+	fill: rgb(217,115,13);
+}
+.block-color-yellow {
+	color: rgb(223,171,1);
+	fill: rgb(223,171,1);
+}
+.block-color-teal {
+	color: rgb(15,123,108);
+	fill: rgb(15,123,108);
+}
+.block-color-blue {
+	color: rgb(11,110,153);
+	fill: rgb(11,110,153);
+}
+.block-color-purple {
+	color: rgb(105,64,165);
+	fill: rgb(105,64,165);
+}
+.block-color-pink {
+	color: rgb(173,26,114);
+	fill: rgb(173,26,114);
+}
+.block-color-red {
+	color: rgb(224,62,62);
+	fill: rgb(224,62,62);
+}
+.block-color-gray_background {
+	background: rgb(235,236,237);
+}
+.block-color-brown_background {
+	background: rgb(233,229,227);
+}
+.block-color-orange_background {
+	background: rgb(250,235,221);
+}
+.block-color-yellow_background {
+	background: rgb(251,243,219);
+}
+.block-color-teal_background {
+	background: rgb(221,237,234);
+}
+.block-color-blue_background {
+	background: rgb(221,235,241);
+}
+.block-color-purple_background {
+	background: rgb(234,228,242);
+}
+.block-color-pink_background {
+	background: rgb(244,223,235);
+}
+.block-color-red_background {
+	background: rgb(251,228,228);
+}
+.select-value-color-default { background-color: rgba(206,205,202,0.5); }
+.select-value-color-gray { background-color: rgba(155,154,151, 0.4); }
+.select-value-color-brown { background-color: rgba(140,46,0,0.2); }
+.select-value-color-orange { background-color: rgba(245,93,0,0.2); }
+.select-value-color-yellow { background-color: rgba(233,168,0,0.2); }
+.select-value-color-green { background-color: rgba(0,135,107,0.2); }
+.select-value-color-blue { background-color: rgba(0,120,223,0.2); }
+.select-value-color-purple { background-color: rgba(103,36,222,0.2); }
+.select-value-color-pink { background-color: rgba(221,0,129,0.2); }
+.select-value-color-red { background-color: rgba(255,0,26,0.2); }
+
+.checkbox {
+	display: inline-flex;
+	vertical-align: text-bottom;
+	width: 16;
+	height: 16;
+	background-size: 16px;
+	margin-left: 2px;
+	margin-right: 5px;
+}
+
+.checkbox-on {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20width%3D%2216%22%20height%3D%2216%22%20fill%3D%22%2358A9D7%22%2F%3E%0A%3Cpath%20d%3D%22M6.71429%2012.2852L14%204.9995L12.7143%203.71436L6.71429%209.71378L3.28571%206.2831L2%207.57092L6.71429%2012.2852Z%22%20fill%3D%22white%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+
+.checkbox-off {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20x%3D%220.75%22%20y%3D%220.75%22%20width%3D%2214.5%22%20height%3D%2214.5%22%20fill%3D%22white%22%20stroke%3D%22%2336352F%22%20stroke-width%3D%221.5%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+	
+</style></head><body><article id="cd3c6e6f-662d-46f9-989e-8b511bb145ef" class="page sans"><header><h1 class="page-title"><strong>The Client-Server Architectural Model</strong></h1></header><div class="page-body"><p id="68742616-b7b6-4e1b-90e0-f3730a636143" class="">This lesson provides a high-level summary of the concept of the client-server architectural model.</p><p id="79de7325-3b1d-4f36-8e55-af69820b367b" class=""><strong>We&#x27;ll cover the following</strong>
+• 
+    ◦ <a href="https://www.educative.io/courses/flask-develop-web-applications-in-python/q2zxLKKKrRR#introduction">Introduction</a>
+    ◦ <a href="https://www.educative.io/courses/flask-develop-web-applications-in-python/q2zxLKKKrRR#what-is-the-clients-role">What is the client’s role?</a>
+    ◦ <a href="https://www.educative.io/courses/flask-develop-web-applications-in-python/q2zxLKKKrRR#what-is-the-servers-role">What is the server’s role?</a>
+    ◦ <a href="https://www.educative.io/courses/flask-develop-web-applications-in-python/q2zxLKKKrRR#a-real-world-analogy">A real-world analogy</a>
+• 
+    ◦ <a href="https://www.educative.io/courses/flask-develop-web-applications-in-python/q2zxLKKKrRR#how-do-the-client-and-server-communicate-with-each-other">How do the client and server communicate with each other?</a>
+    ◦ <a href="https://www.educative.io/courses/flask-develop-web-applications-in-python/q2zxLKKKrRR#a-flask-application-as-a-server">A Flask application as a server</a></p><h2 id="3ce48790-7124-4961-bc8c-faae83ed399e" class=""><strong>Introduction </strong><a href="https://www.educative.io/courses/flask-develop-web-applications-in-python/q2zxLKKKrRR#introduction"><strong>#</strong></a></h2><p id="075b54d1-2eca-4d52-99bf-933411ac4139" class="">The crux of any communication over the Internet is the client-server architecture. The discussion on this topic is extensive and could fill a whole separate course. Therefore, in this course, we will keep the discussion brief and easy to understand, so you can grasp the concepts that we will study later on in this course.</p><p id="8e997d8a-39ea-4499-83af-855ccdbfd021" class=""><strong>So, what exactly are clients and servers?</strong></p><blockquote id="d6dcd1b3-206e-42ff-88d3-b871b805a9e7" class="">💡 The client and server are the main entities between which all communication of data over the Internet takes place.</blockquote><h2 id="7a404f46-d45a-47d2-907d-dd0c2fd6f276" class=""><strong>What is the client’s role? </strong><a href="https://www.educative.io/courses/flask-develop-web-applications-in-python/q2zxLKKKrRR#what-is-the-clients-role"><strong>#</strong></a></h2><p id="99486d71-ee13-45a1-9382-d75ee67ed4c6" class="">A client is any web browser or application on a desktop, a cellular device, or any other smart device. In fact, right now, you must be viewing this course through any such device. The role of the client is to send a request to the server and send back the required data. Simply put, when we type a URL into a browser or press a button, it sends a request to a server.</p><h2 id="931263dd-89b9-4d50-b82d-f67ca8a8d400" class=""><strong>What is the server’s role? </strong><a href="https://www.educative.io/courses/flask-develop-web-applications-in-python/q2zxLKKKrRR#what-is-the-servers-role"><strong>#</strong></a></h2><p id="4176e22a-c65a-461b-95b0-a744bcce1911" class="">The primary role of a server is to wait for requests to arrive from clients and then respond to them. In other words, when a request from the client is received, the server determines the appropriate response to send back. Afterward, the server responds to these requests and sends back the information the client asked for.</p><h2 id="cff16cf6-d2e2-430d-8f1e-b9847c4405c3" class=""><strong>A real-world analogy </strong><a href="https://www.educative.io/courses/flask-develop-web-applications-in-python/q2zxLKKKrRR#a-real-world-analogy"><strong>#</strong></a></h2><p id="ac8d4948-857b-4042-836f-8d6db88aed4d" class="">Consider this analogy: when we visit a restaurant, we go straight to the counter and ask to be seated. The manager listens to the request and directs us to a table.</p><p id="b0f2c202-6fda-4604-9729-fab0d637efbb" class="">Conversation between a client and a manager at a restaurant.</p><p id="b06bc5ab-41a6-4073-a5d5-2b59780b17a5" class="">Then, we decide what to order and convey our requests to the waiter. Afterward, the waiter returns with the food that we ordered.</p><p id="c5f9aae7-2760-4285-b0ba-bf9065f5fc44" class="">Conversation between a client and a waiter at a restaurant.</p><p id="d1b2f4b0-a85d-40be-97cb-8035782d8c4c" class="">In the above analogy, we considered ourselves <strong>the client</strong> and the restaurant staff as <strong>the server</strong>. Each request we sent had an outcome, i.e., <em>a response</em>. The response was dependent upon the request. In the above example, we first made the request to be seated; therefore, the manager directed us to an empty table and also placed a menu for us. The manager interpreted our <strong>request</strong> and replied with an appropriate <strong>response</strong>. The same occurred in the other transaction when we asked the waiter to bring us the food. The waiter returned with the same dish we ordered. Had we asked for a different meal, we would have gotten a different response.</p><blockquote id="b9c3181a-d476-43c7-93f4-643a602046f8" class="">💡 The request and response cycle is the core of all communication that takes place between a client and a server!</blockquote><h2 id="172155cd-8668-45ce-aaf0-f41adc28938b" class=""><strong>How do the client and server communicate with each other? </strong><a href="https://www.educative.io/courses/flask-develop-web-applications-in-python/q2zxLKKKrRR#how-do-the-client-and-server-communicate-with-each-other"><strong>#</strong></a></h2><p id="d8810ef0-163b-4f27-b3d8-65fb4f4eaeab" class="">The client and server communicate through multiple different <strong>protocols</strong>. In our context, the <code><strong>HTTP</strong></code> or <code><strong>HTTPS</strong></code> protocols are used. Think of the protocols as a language that they both understand. A client and a server adhere to a set of request-response messages to be sent in a specific order. For instance, you wouldn’t enter a restaurant and ask for a cheque. This set of messages is known as a protocol. The discussion on the <code>HTTP</code> protocol is too extensive for this course. Therefore, it is a prerequisite that you have some basic knowledge about <code>HTTP</code> and its different methods:</p><p id="c34e2ad1-35e9-4b2a-8384-b80361034a62" class=""><strong>• </strong><code><strong>GET</strong></code><strong>
+• </strong><code><strong>POST</strong></code><strong>
+• </strong><code><strong>PUT</strong></code><strong>
+• </strong><code><strong>DELETE</strong></code></p><h2 id="bd10b2c9-4695-4d3c-b76a-2b8f2edb452d" class=""><strong>A Flask application as a server </strong><a href="https://www.educative.io/courses/flask-develop-web-applications-in-python/q2zxLKKKrRR#a-flask-application-as-a-server"><strong>#</strong></a></h2><p id="6d9dea88-99c7-4040-9f76-1e75d3793bba" class="">The flask application that we will be learning to create in this course will be on the server-side. The browser will be acting as a client and sending <code>requests</code> to our web application. Then, the application will send back an appropriate <code>response</code>.</p><hr id="742fed1c-9fe4-4d63-b962-b530e52e9ec2"/><p id="1f2cfb80-7567-4693-aa19-8c3061f8e76c" class="">In the next lesson, we will go through a brief overview of the <strong>MVC</strong> and <strong>MTV</strong> architecture.</p></div></article></body></html>
